@@ -1,0 +1,152 @@
+-- MEESHO BUSINESS ANALYST ASSESSMENT  
+                                      Ashwath J
+
+1) Employee tracker
+--q1.1 
+SELECT tab.Emplyoyeeid,tab.Action
+FROM(
+
+     SELECT Emplyoyeeid,Action,Created,
+     row_number() over(partition by Emplyoyeeid order by Created desc range between unbounded preceding and unbounded FOLLOWING) as row_num
+     from Employee_Tracker
+	 
+) as tab
+where tab.row_num = 1;
+
+
+SELECT tab.Emplyoyeeid,tab.Action
+FROM(
+
+     SELECT Emplyoyeeid,Action,Created,
+     row_number() over(partition by Emplyoyeeid order by Created desc range between unbounded preceding and unbounded FOLLOWING) as row_num
+     from Employee_tracker_test
+	 
+) as tab
+where tab.row_num = 1;
+
+
+--q1.2
+select tab.Emplyoyeeid,tab.Action as Action
+from(
+select *,row_number() over(partition by Emplyoyeeid order by Created desc) as row_numb
+from(
+SELECT Emplyoyeeid,Action,Created,
+CASE WHEN Created < '2019-04-01 19:05:00' then 1
+else -1 end as time_flag
+from Employee_Tracker
+)
+where time_flag = 1
+) as tab
+where tab.row_numb = 1
+
+
+select tab.Action as Action,count(tab.Emplyoyeeid) as employee_count
+from(
+select *,row_number() over(partition by Emplyoyeeid order by Created desc) as row_numb
+from(
+SELECT Emplyoyeeid,Action,Created,
+CASE WHEN Created < '2019-04-01 19:05:00' then 1
+else -1 end as time_flag
+from Employee_tracker_test
+)
+where time_flag = 1
+) as tab
+where tab.row_numb = 1
+group by tab.Action
+
+
+--q1.3
+SELECT Emplyoyeeid,SUM(hrs)
+from(
+SELECT *,date_diff*multiplier as hrs
+from(
+SELECT *,round((julianday(Created)-julianday(lag_date))*24,0) AS date_diff,case when Action = 'In' then 0
+else 1 end as 'multiplier'
+FROM(
+select *,lag(Created) over(partition by Emplyoyeeid order by Created) as lag_date
+from Employee_Tracker
+) as tab
+) as tab2
+) as tab3
+group by Emplyoyeeid
+
+
+SELECT Emplyoyeeid,SUM(hrs) as total_hrs
+from(
+SELECT *,date_diff*multiplier as hrs
+from(
+SELECT *,round((julianday(Created)-julianday(lag_date))*24,2) AS date_diff,case when Action = 'In' then 0
+else 1 end as 'multiplier'
+FROM(
+select *,lag(Created) over(partition by Emplyoyeeid order by Created) as lag_date
+from Employee_tracker_test
+) as tab
+) as tab2
+) as tab3
+group by Emplyoyeeid
+
+
+-- q1.4
+SELECT Emplyoyeeid,SUM(hrs) as total_hrs_in_between_timeslots
+FROM(
+SELECT *,date_diff*multiplier as hrs
+from(
+select *,round((julianday(Created)-julianday(lag_date))*24,2) AS date_diff,case when Action = 'In' then 0
+else 1 end as 'multiplier'
+from(
+select *,lag(Created,1,'2019-03-31 14:30:00') over(partition by Emplyoyeeid order by Created) as lag_date
+from Employee_tracker
+where Created  BETWEEN '2019-03-31 14:30:00' and '2019-04-01 17:30:00' 
+) as tab
+) as tab2
+) as tab3
+group by Emplyoyeeid
+
+
+
+SELECT Emplyoyeeid,SUM(hrs) as total_hrs_in_between_timeslots
+FROM(
+SELECT *,date_diff*multiplier as hrs
+from(
+select *,round((julianday(Created)-julianday(lag_date))*24,2) AS date_diff,case when Action = 'In' then 0
+else 1 end as 'multiplier'
+from(
+select *,lag(Created,1,'2019-03-31 14:30:00') over(partition by Emplyoyeeid order by Created) as lag_date
+from Employee_tracker_test
+where Created  BETWEEN '2019-03-31 14:30:00' and '2019-04-01 17:30:00' 
+) as tab
+) as tab2
+) as tab3
+group by Emplyoyeeid
+
+
+
+2) Ranker System
+
+--question 2 ranker system
+select *
+from(
+SELECT *,rank() over(PARTITION by CustomerID,Sub_Category order by Scores desc) as ranks
+FROM ranker_system
+) as tab
+where ranks < 11 and CustomerID = 'AB-10105'
+
+
+
+3) Retention Cohort
+--question 3 retention cohort 
+select Userids,MAX(date_diff) as date_diff_transactions,case when MAX(date_diff) >= 7 then "YES" ELSE "NO" END AS D7,
+case when MAX(date_diff) >= 30 then "YES" ELSE "NO" END AS D30,
+case when MAX(date_diff) >= 60 then "YES" ELSE "NO" END AS D60
+from(
+select *,julianday(Dateoftransaction) - julianday(lag_date) as date_diff
+from(
+select *,lag(Dateoftransaction,1,Dateoftransaction) over(PARTITION by Userids order by Dateoftransaction) as lag_date
+from(
+select *,row_number() over(PARTITION by Userids order by Dateoftransaction) as row_num
+from retention_cohort
+) as tab
+where row_num <=2
+) as tab3
+) as tab4
+group by Userids;

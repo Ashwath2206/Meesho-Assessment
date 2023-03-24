@@ -1,0 +1,92 @@
+1. Employee Tracker 
+
+A company record its employees movement In and Out of office in a table with 3 columns
+
+(Employee id, Action (In/Out), Created) 
+
+
+Data structure: 
+
+Employee id
+
+Action
+
+Created
+
+1
+
+In
+
+2019-04-01 12:00:00
+
+1
+
+Out
+
+2019-04-01 15:00:00
+
+1
+
+In
+
+2019-04-01 17:00:00
+
+1
+
+Out
+
+2019-04-01 21:00:00
+
+ 
+
+
+First entry for each employee is “In”
+
+“In” is succeeded by an “Out” and vice versa 
+
+No data gaps and, employee can work across days (eg. an employee can work for 3 days without leaving) 
+
+
+
+Find number of employees inside the Office at current time 
+
+Find number of employees inside the Office at “2019-05-01 19:05:00”
+
+Measure amount of hours spent by each employee inside the office since the day they started (Account for current  shift if she/he is working)
+
+Measure amount of hours spent by each employee inside the office between “2019-04-01 14:00:00” and “2019-04-02 10:00:00”
+
+
+For each problem, the solution should contain a brief summary of the logic used and SQL query to execute it
+
+
+
+2. Ranker System
+
+
+
+A company wants to build a recommendation system for its users, they plan to show 50 products to the customers which they are most likely to buy (highest score) . To improve diversity they want to keep products from all categories 5, in the system 
+
+
+Given table with columns user_id, catalog_id, score, category 
+
+
+Write a query that give 50 catalogs, top 10 for each category for each user. 
+
+
+3. Retention Cohort
+
+
+ 
+
+A company have the transaction data for its ecommerce site stored in a table which contains columns/fields (users_id ,transaction_id, timestamp ) 
+
+
+For users acquired in a given week (first transaction for that user was in that week), week starting 29st Sep 2022. Find the D+7, D+30 and D+60 retained transactors. 
+
+D+i → Retained transactors are users who transacted atleast i days after there onboarding date 
+
+So for eg. if a user was onboarded on 31st Nov 2022 and did his 2nd transaction and last transaction on 1st Jan, that seller will be D+7 and D+30 retained but not D+60 retained 
+
+
+Write a query to get the desired output 
